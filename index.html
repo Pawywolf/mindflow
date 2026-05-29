@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MindFlow Studio - Animated</title>
+    <style>
+        /* Theme Design Tokens via CSS Variables */
+        :root {
+            /* Default: Dark Mode + Hypnotic Pink/Magenta */
+            --bg-gradient: linear-gradient(135deg, #1b0a1c 0%, #080309 100%);
+            --panel-bg: rgba(255, 255, 255, 0.03);
+            --panel-border: rgba(255, 255, 255, 0.08);
+            --card-bg: rgba(255, 255, 255, 0.01);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #ec4899; 
+            --accent-gradient: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+            --accent-glow: rgba(236, 72, 153, 0.4);
+            --animation-bg: pulseDark 12s ease infinite alternate;
+        }
+
+        /* Upgraded Relaxing Pastel Light Mode */
+        [data-theme="light"] {
+            --bg-gradient: linear-gradient(135deg, #f5f3ff 0%, #fdf2f8 100%);
+            --panel-bg: rgba(255, 255, 255, 0.65);
+            --panel-border: rgba(236, 72, 153, 0.15);
+            --card-bg: rgba(255, 255, 255, 0.5);
+            --text-main: #2e1065;
+            --text-muted: #6b7280;
+            --accent-glow: rgba(236, 72, 153, 0.2);
+            --animation-bg: pulseLight 12s ease infinite alternate;
+        }
+
+        /* Ambient Background Keyframe Animations */
+        @keyframes pulseDark {
+            0% { background-color: #110512; }
+            100% { background-color: #030a16; }
+        }
+        @keyframes pulseLight {
+            0% { background-color: #faf5ff; }
+            100% { background-color: #fff1f2; }
+        }
+
+        /* Standard Global Structure */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            transition: background 0.4s cubic-bezier(0.25, 1, 0.5, 1), 
+                        border-color 0.4s ease, 
+                        color 0.4s ease, 
+                        transform 0.2s ease, 
+                        box-shadow 0.3s ease;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            animation: var(--animation-bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 16px;
+            overflow-x: hidden;
+        }
+
+        /* Animated Main Container */
+        .container {
+            background: var(--panel-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--panel-border);
+            border-radius: 28px;
+            padding: 24px 16px;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+            margin-bottom: 40px;
+            animation: containerReveal 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes containerReveal {
+            from { opacity: 0; transform: scale(0.95) translateY(15px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        /* Menu Preferences Layout */
+        .theme-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--panel-border);
+        }
+
+        .color-pickers { display: flex; gap: 10px; }
+
+        .color-dot {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+        }
+        .color-dot.active {
+            border-color: var(--text-main);
+            transform: scale(1.2);
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        .mode-toggle {
+            background: var(--panel-border);
+            border: none;
+            color: var(--text-main);
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .mode-toggle:active { transform: scale(0.95); }
+
+        header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            font-size: 1.9rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 4px;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle { font-size: 0.85rem; color: var(--text-muted); }
+
+        /* Smooth Playlist Stack Entries */
+        .playlist {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .track-card {
+            background: var(--card-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 18px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.01);
+            animation: cardSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        @keyframes cardSlideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-top { display: flex; justify-content: space-between; align-items: center; }
+        .track-number { font-size: 0.75rem; font-weight: 700; color: var(--accent); letter-spacing: 0.5px; }
+
+        .btn-delete {
+            background: transparent;
+            border: none;
+            color: #ef4444;
+            font-size: 1.1rem;
+            padding: 4px 8px;
+            cursor: pointer;
+        }
+        .btn-delete:active { transform: scale(0.85); }
+
+        /* Inputs and Buttons Styling */
+        .file-upload-wrapper { position: relative; width: 100%; }
+
+        .custom-file-btn {
+            display: block;
+            background: rgba(0, 0, 0, 0.02);
+            border: 1px dashed var(--panel-border);
+            padding: 14px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-main);
+            cursor: pointer;
+        }
+        .custom-file-btn:active { background: rgba(0,0,0,0.06); }
+
+        .file-upload-wrapper input[type="file"] {
+            position: absolute; left: 0; top: 0; opacity: 0; width: 100%; height: 100%;
+        }
+
+        .card-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.02);
+            padding: 8px 14px;
+            border-radius: 12px;
+        }
+
+        .loop-label { font-size: 0.85rem; color: var(--text-muted); }
+        .loop-counter { display: flex; align-items: center; gap: 16px; }
+
+        .loop-counter button {
+            background: var(--panel-border);
+            border: none;
+            color: var(--text-main);
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .loop-counter button:active { transform: scale(0.85); }
+        .loop-count { font-size: 1rem; font-weight: 600; min-width: 16px; text-align: center; }
+
+        /* Primary Operational Interaction Nodes */
+        .btn-secondary {
+            width: 100%;
+            background: transparent;
+            border: 1px dashed var(--panel-border);
+            color: var(--text-muted);
+            padding: 14px;
+            border-radius: 14px;
+            font-size: 0.9rem;
+            margin-bottom: 24px;
+            cursor: pointer;
+        }
+        .btn-secondary:active { background: var(--panel-border); }
+
+        /* Master Trigger Pulsing Action Button */
+        .btn-primary {
+            width: 100%;
+            background: var(--accent-gradient);
+            border: none;
+            color: white;
+            padding: 18px;
+            border-radius: 16px;
+            font-size: 1rem;
+            font-weight: 600;
+            box-shadow: 0 6px 20px var(--accent-glow);
+            cursor: pointer;
+        }
+        .btn-primary:active { transform: scale(0.97); }
+        
+        /* Continuous Soft Pulse when session is running */
+        .btn-primary.playing {
+            animation: pulsePlayButton 2s infinite alternate;
+        }
+        @keyframes pulsePlayButton {
+            0% { box-shadow: 0 6px 15px var(--accent-glow); }
+            100% { box-shadow: 0 6px 30px var(--accent); transform: scale(1.01); }
+        }
+        .btn-primary:disabled { background: #94a3b8; color: #e2e8f0; cursor: not-allowed; box-shadow: none; animation: none; }
+
+        #status {
+            margin-top: 20px;
+            font-size: 0.85rem;
+            color: var(--accent);
+            text-align: center;
+            font-weight: 500;
+            min-height: 24px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="theme-bar">
+            <div class="color-pickers">
+                <div class="color-dot active" style="background: #ec4899;" onclick="setVibe('pink', '#ec4899', 'linear-gradient(135deg, #ec4899 0%, #be185d 100%)', '#1b0a1c', '#080309', this)"></div>
+                <div class="color-dot" style="background: #a855f7;" onclick="setVibe('purple', '#a855f7', 'linear-gradient(135deg, #a855f7 0%, #7e22ce 100%)', '#12071f', '#06020b', this)"></div>
+                <div class="color-dot" style="background: #6366f1;" onclick="setVibe('indigo', '#6366f1', 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)', '#0a0b1c', '#020209', this)"></div>
+                <div class="color-dot" style="background: #14b8a6;" onclick="setVibe('teal', '#14b8a6', 'linear-gradient(135deg, #14b8a6 0%, #0f766e 100%)', '#031715', '#010706', this)"></div>
+            </div>
+            <button class="mode-toggle" id="modeBtn" onclick="toggleMode()">☀️ Light Mode</button>
+        </div>
+
+        <header>
+            <h1>MindFlow</h1>
+            <p class="subtitle">Custom Audio Sequencer</p>
+        </header>
+
+        <div class="playlist" id="playlistContainer"></div>
+
+        <button class="btn-secondary" onclick="addTrackCard()">+ Add Audio Segment</button>
+        <button class="btn-primary" id="playBtn" onclick="startEngine()">Begin Session</button>
+        
+        <div id="status"></div>
+    </div>
+
+    <script>
+        let audioCtx = null;
+        let trackCounter = 0;
+        
+        let currentMode = "dark"; 
+        let currentDarkBaseBg = "#1b0a1c";
+        let currentDarkDeepBg = "#080309";
+
+        window.onload = () => {
+            addTrackCard();
+            addTrackCard();
+        };
+
+        function toggleMode() {
+            const body = document.documentElement;
+            const btn = document.getElementById('modeBtn');
+            
+            if (currentMode === "dark") {
+                currentMode = "light";
+                body.setAttribute('data-theme', 'light');
+                btn.innerText = "🌙 Night Mode";
+            } else {
+                currentMode = "dark";
+                body.removeAttribute('data-theme');
+                btn.innerText = "☀️ Light Mode";
+                body.style.setProperty('--bg-gradient', `linear-gradient(135deg, ${currentDarkBaseBg} 0%, ${currentDarkDeepBg} 100%)`);
+            }
+        }
+
+        function setVibe(name, accentHex, gradientStr, darkBase, darkDeep, element) {
+            const body = document.documentElement;
+            
+            document.querySelectorAll('.color-dot').forEach(dot => dot.classList.remove('active'));
+            element.classList.add('active');
+
+            currentDarkBaseBg = darkBase;
+            currentDarkDeepBg = darkDeep;
+
+            body.style.setProperty('--accent', accentHex);
+            body.style.setProperty('--accent-gradient', gradientStr);
+
+            if (currentMode === "dark") {
+                body.style.setProperty('--bg-gradient', `linear-gradient(135deg, ${darkBase} 0%, ${darkDeep} 100%)`);
+            }
+        }
+
+        function addTrackCard() {
+            trackCounter++;
+            const container = document.getElementById('playlistContainer');
+            
+            const card = document.createElement('div');
+            card.className = 'track-card';
+            card.id = `track-${trackCounter}`;
+            card.setAttribute('data-loops', '1');
+
+            card.innerHTML = `
+                <div class="card-top">
+                    <span class="track-number">Segment</span>
+                    <button class="btn-delete" onclick="deleteTrack(${trackCounter})">✕</button>
+                </div>
+                <div class="file-upload-wrapper">
+                    <div class="custom-file-btn" id="file-label-${trackCounter}">Choose audio file...</div>
+                    <input type="file" accept="audio/*" onchange="updateTrackName(${trackCounter}, this)">
+                </div>
+                <div class="card-bottom">
+                    <span class="loop-label">Repeat count:</span>
+                    <div class="loop-counter">
+                        <button onclick="adjustLoop(${trackCounter}, -1)">−</button>
+                        <span class="loop-count" id="loop-val-${trackCounter}">1</span>
+                        <button onclick="adjustLoop(${trackCounter}, 1)">+</button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
+            renumberTracks();
+        }
+
+        function deleteTrack(id) {
+            const card = document.getElementById(`track-${id}`);
+            if (card) { card.remove(); renumberTracks(); }
+        }
+
+        function adjustLoop(id, delta) {
+            const card = document.getElementById(`track-${id}`);
+            const countSpan = document.getElementById(`loop-val-${id}`);
+            let currentLoops = parseInt(card.getAttribute('data-loops'));
+            
+            currentLoops = Math.max(1, Math.min(20, currentLoops + delta));
+            card.setAttribute('data-loops', currentLoops);
+            countSpan.innerText = currentLoops;
+        }
+
+        function updateTrackName(id, input) {
+            const buttonLabel = document.getElementById(`file-label-${id}`);
+            if (input.files && input.files[0]) {
+                let name = input.files[0].name;
+                if(name.length > 28) name = name.substring(0, 25) + '...';
+                buttonLabel.innerText = "✓ " + name;
+            } else {
+                buttonLabel.innerText = "Choose audio file...";
+            }
+        }
+
+        function renumberTracks() {
+            const cards = document.querySelectorAll('.track-card');
+            cards.forEach((card, index) => {
+                const label = card.querySelector('.track-number');
+                if (label.innerText.startsWith('Segment') || label.innerText === '') {
+                    label.innerText = `Segment ${index + 1}`;
+                }
+            });
+        }
+
+        function updateStatus(text) {
+            document.getElementById('status').innerText = text;
+        }
+
+        async function startEngine() {
+            const cards = document.querySelectorAll('.track-card');
+            if (cards.length === 0) return alert("Add a segment first.");
+
+            let filesToProcess = [];
+            for (let card of cards) {
+                const fileInput = card.querySelector('input[type="file"]');
+                const loops = parseInt(card.getAttribute('data-loops'));
+                if (!fileInput.files[0]) return alert("Please populate all file inputs.");
+                filesToProcess.push({ file: fileInput.files[0], loops: loops });
+            }
+
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            
+            const masterBtn = document.getElementById('playBtn');
+            masterBtn.disabled = true;
+            updateStatus("Preparing audio buffers...");
+
+            try {
+                const decodedTracks = [];
+                for (let item of filesToProcess) {
+                    updateStatus(`Decoding: ${item.file.name}`);
+                    const arrayBuffer = await item.file.arrayBuffer();
+                    const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+                    decodedTracks.push({ buffer: audioBuffer, loops: item.loops });
+                }
+
+                // Add the animation class while playing
+                masterBtn.classList.add('playing');
+                updateStatus("Session active. Breathe smoothly...");
+                let timeline = audioCtx.currentTime;
+                let lastNode = null;
+
+                for (let track of decodedTracks) {
+                    for (let i = 0; i < track.loops; i++) {
+                        const sourceNode = audioCtx.createBufferSource();
+                        sourceNode.buffer = track.buffer;
+                        sourceNode.connect(audioCtx.destination);
+                        sourceNode.start(timeline);
+                        timeline += track.buffer.duration;
+                        lastNode = sourceNode;
+                    }
+                }
+
+                if (lastNode) {
+                    lastNode.onended = () => {
+                        updateStatus("Session completed cleanly.");
+                        masterBtn.classList.remove('playing');
+                        masterBtn.disabled = false;
+                    };
+                }
+            } catch (err) {
+                console.error(err);
+                updateStatus("Error processing file types.");
+                masterBtn.classList.remove('playing');
+                masterBtn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
+
